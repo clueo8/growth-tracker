@@ -400,6 +400,44 @@
     </div>
   </div>
 
+  <!-- MODAL: Edit Session Measurements -->
+  <div class="modal-overlay" id="editSessionModal" style="display: none;">
+    <div class="modal-content" style="max-width: 680px;">
+      <div class="modal-header">
+        <h3 id="editSessionModalTitle">✏️ Edit Measurements</h3>
+        <button class="btn btn-secondary btn-sm" onclick="window.app.closeModal('editSessionModal')">✕</button>
+      </div>
+      <form id="editSessionModalForm">
+        <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
+          <input type="hidden" id="editSessionId">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="editSessionDate">Measurement Date *</label>
+              <input type="date" id="editSessionDate" class="form-input" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="editSessionNotes">Notes / Milestone</label>
+              <input type="text" id="editSessionNotes" class="form-input" placeholder="e.g. 7th Birthday checkup">
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+            <div style="font-weight: 700; font-size: 0.95rem;">Measurement Values</div>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Clear a field to remove it</span>
+          </div>
+
+          <div id="editSessionInputsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 0.75rem;">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="window.app.closeModal('editSessionModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- App Script -->
   <script src="app.js"></script>
 </body>

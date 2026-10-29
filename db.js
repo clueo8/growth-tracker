@@ -268,6 +268,43 @@ export function getSessionsForChild(childId) {
   }));
 }
 
+export function updateMeasurementSession(sessionId, measuredDate, notes, items) {
+  db.exec('BEGIN TRANSACTION;');
+  try {
+    const session = db.prepare('SELECT * FROM measurement_sessions WHERE id = ?').get(sessionId);
+    if (!session) throw new Error('Session not found');
+
+    db.prepare('UPDATE measurement_sessions SET measured_date = ?, notes = ? WHERE id = ?')
+      .run(measuredDate, notes || '', sessionId);
+
+    db.prepare('DELETE FROM measurements WHERE session_id = ?').run(sessionId);
+
+    const measStmt = db.prepare(`
+      INSERT INTO measurements (session_id, child_id, metric_key, value, unit, measured_date)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+
+    for (const item of items) {
+      if (item.value !== null && item.value !== '' && !isNaN(Number(item.value))) {
+        measStmt.run(
+          sessionId,
+          session.child_id,
+          item.metric_key,
+          Number(item.value),
+          item.unit || 'in',
+          measuredDate
+        );
+      }
+    }
+
+    db.exec('COMMIT;');
+    return getSessionById(sessionId);
+  } catch (err) {
+    db.exec('ROLLBACK;');
+    throw err;
+  }
+}
+
 export function deleteSession(sessionId) {
   return db.prepare('DELETE FROM measurement_sessions WHERE id = ?').run(sessionId);
 }

@@ -136,6 +136,20 @@ app.post('/api/children/:id/sessions', (req, res) => {
   }
 });
 
+app.put('/api/sessions/:id', (req, res) => {
+  try {
+    const sessionId = Number(req.params.id);
+    const { measured_date, notes, measurements } = req.body;
+    if (!measured_date || !Array.isArray(measurements)) {
+      return res.status(400).json({ error: 'measured_date and measurements array are required' });
+    }
+    const session = db.updateMeasurementSession(sessionId, measured_date, notes, measurements);
+    res.json(session);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.delete('/api/sessions/:id', (req, res) => {
   try {
     db.deleteSession(Number(req.params.id));

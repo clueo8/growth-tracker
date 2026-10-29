@@ -8,6 +8,8 @@ services:
     volumes:
       - ./data:/app/data
       - ./public:/app/public
+      - ./server.js:/app/server.js
+      - ./db.js:/app/db.js
     environment:
       - PORT=3000
       - DATA_DIR=/app/data

@@ -73,7 +73,15 @@
     guideMetricSelect: document.getElementById('guideMetricSelect'),
     guideContent: document.getElementById('guideContent'),
     btnGuidePrev: document.getElementById('btnGuidePrev'),
-    btnGuideNext: document.getElementById('btnGuideNext')
+    btnGuideNext: document.getElementById('btnGuideNext'),
+    // Edit Session Modal
+    editSessionModal: document.getElementById('editSessionModal'),
+    editSessionModalForm: document.getElementById('editSessionModalForm'),
+    editSessionModalTitle: document.getElementById('editSessionModalTitle'),
+    editSessionId: document.getElementById('editSessionId'),
+    editSessionDate: document.getElementById('editSessionDate'),
+    editSessionNotes: document.getElementById('editSessionNotes'),
+    editSessionInputsGrid: document.getElementById('editSessionInputsGrid')
   };
 
   // Comprehensive Measurement Guide & Tips
@@ -445,6 +453,11 @@
     }
     if (el.btnGuideNext) {
       el.btnGuideNext.addEventListener('click', () => stepGuide(1));
+    }
+
+    // Edit Session Modal Form Submit
+    if (el.editSessionModalForm) {
+      el.editSessionModalForm.addEventListener('submit', handleEditSessionSubmit);
     }
   }
 
@@ -932,7 +945,7 @@
       let badgesHtml = '';
       s.measurements.forEach(m => {
         badgesHtml += `
-          <div class="meas-badge">
+          <div class="meas-badge" style="cursor: pointer;" onclick="window.app.openEditSessionModal(${s.id})" title="Click to edit session">
             <span>${escapeHtml(m.label)}:</span>
             <strong>${m.value} ${m.unit}</strong>
           </div>
@@ -950,6 +963,7 @@
             </div>
             <div style="display: flex; gap: 0.5rem; align-items: center;">
               <span style="font-size: 0.8rem; color: #64748b;">${s.measurements.length} measurements</span>
+              <button class="btn btn-sm btn-secondary" onclick="window.app.openEditSessionModal(${s.id})" title="Edit Measurements">✏️ Edit</button>
               <button class="btn btn-sm btn-danger" onclick="window.app.deleteSession(${s.id})" title="Delete Session">🗑️</button>
             </div>
           </div>
@@ -1200,6 +1214,83 @@
     renderGuideContent();
   }
 
+  // Edit Session Modal
+  function openEditSessionModal(sessionId) {
+    const session = state.sessions.find(s => s.id === sessionId);
+    if (!session) return;
+
+    el.editSessionId.value = session.id;
+    el.editSessionDate.value = session.measured_date;
+    el.editSessionNotes.value = session.notes || '';
+    el.editSessionModalTitle.textContent = `✏️ Edit Measurements (${formatDate(session.measured_date)})`;
+
+    // Map of existing values
+    const measMap = {};
+    session.measurements.forEach(m => {
+      measMap[m.metric_key] = { value: m.value, unit: m.unit };
+    });
+
+    let html = '';
+    state.metrics.forEach(m => {
+      const existing = measMap[m.key];
+      const val = existing ? existing.value : '';
+      const unit = existing ? existing.unit : getMetricUnit(m);
+
+      html += `
+        <div class="meas-input-tile">
+          <label class="meas-input-label" for="edit_input_${m.key}">${escapeHtml(m.label)}</label>
+          <div class="input-with-unit-badge">
+            <input type="number" step="0.1" min="0" id="edit_input_${m.key}" name="edit_${m.key}" value="${val}" placeholder="--" data-key="${m.key}" data-unit="${unit}">
+            <span class="unit-addon">${unit}</span>
+          </div>
+        </div>
+      `;
+    });
+
+    el.editSessionInputsGrid.innerHTML = html;
+    el.editSessionModal.style.display = 'flex';
+  }
+
+  async function handleEditSessionSubmit(e) {
+    e.preventDefault();
+    const sessionId = Number(el.editSessionId.value);
+    const measured_date = el.editSessionDate.value;
+    const notes = el.editSessionNotes.value;
+
+    const measurements = [];
+    const inputs = el.editSessionInputsGrid.querySelectorAll('input[data-key]');
+    inputs.forEach(inp => {
+      const val = inp.value.trim();
+      if (val !== '' && !isNaN(Number(val))) {
+        const key = inp.dataset.key;
+        const unit = inp.dataset.unit || getMetricUnit({ key });
+        measurements.push({
+          metric_key: key,
+          value: Number(val),
+          unit
+        });
+      }
+    });
+
+    if (measurements.length === 0) {
+      alert('A session must have at least one measurement.');
+      return;
+    }
+
+    await api(`/api/sessions/${sessionId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ measured_date, notes, measurements })
+    });
+
+    closeModal('editSessionModal');
+    await loadStats();
+    await loadSessions();
+    if (state.activeTab === 'tab-charts') {
+      updateChart();
+    }
+    alert('Measurements updated successfully!');
+  }
+
   async function handleImportBackup(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -1236,6 +1327,7 @@
     openChildModal,
     openMetricModal,
     openGuideModal,
+    openEditSessionModal,
     closeModal,
     deleteChild,
     deleteSession,
