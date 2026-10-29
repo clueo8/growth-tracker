@@ -26,15 +26,14 @@ A modern web application to track children's physical growth, standard metrics (
 
 ## Quick Start (Docker)
 
-The app is deployed in `~/docker/growth-tracker`:
-
 ```bash
-cd ~/docker/growth-tracker
+git clone https://github.com/clueo8/growth-tracker.git
+cd growth-tracker
 docker compose up -d
 ```
 
 The web dashboard is available at:
-`http://localhost:3085` or `http://<server-ip>:3085`
+`http://localhost:3085` (or configured `HOST_PORT`).
 
 ## Configuration
 
