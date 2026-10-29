@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#312e81"/>
+    </linearGradient>
+    <linearGradient id="tapeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#grad)"/>
+  <path d="M12 44 L44 12 C46 10 50 10 52 12 C54 14 54 18 52 20 L20 52 C18 54 14 54 12 52 C10 50 10 46 12 44 Z" fill="url(#tapeGrad)"/>
+  <line x1="20" y1="20" x2="25" y2="25" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="25.5" y1="25.5" x2="28.5" y2="28.5" stroke="#78350f" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="30" y1="30" x2="35" y2="35" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="35.5" y1="35.5" x2="38.5" y2="38.5" stroke="#78350f" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="40" y1="40" x2="45" y2="45" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M46 50 L46 38 M46 38 L41 43 M46 38 L51 43" stroke="#10b981" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Growth Tracker - Children's Body & Tape Measurements</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script src="vendor/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Top App Bar -->
+  <header class="top-nav">
+    <div class="top-nav-inner">
+      <a href="#" class="app-brand" id="brandLink" title="Go to Dashboard" style="cursor: pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 12h20M7 12v-4M12 12v-6M17 12v-4M2 12v8a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-8"/>
+        </svg>
+        <span>Growth Tracker</span>
+      </a>
+
+      <!-- Child Selector -->
+      <div class="children-bar" id="childrenChipsBar">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Active Child Hero Banner -->
+  <div class="child-banner" id="childBanner" style="display: none;">
+    <div class="child-banner-inner">
+      <div class="child-details">
+        <h1 id="childHeaderName">
+          <span id="childNameText">Child Name</span>
+          <button class="btn btn-sm btn-secondary" id="btnEditCurrentChild" title="Edit Child Profile" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+            ✏️ Edit
+          </button>
+        </h1>
+        <div class="child-sub" id="childHeaderSub">Born Jan 1, 2020 • 6 yrs old</div>
+      </div>
+      <div class="child-meta-badges">
+        <div class="badge-white" id="badgeLastMeasured">Last measured: --</div>
+        <div class="badge-white" id="badgeTotalSessions">0 measurement sessions</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <nav class="main-nav" id="mainNavTabs">
+    <button class="nav-tab active" data-tab="tab-dashboard">📊 Dashboard</button>
+    <button class="nav-tab" data-tab="tab-record">📏 Log Measurements</button>
+    <button class="nav-tab" data-tab="tab-charts">📈 Growth Charts</button>
+    <button class="nav-tab" data-tab="tab-history">📜 History Log</button>
+    <button class="nav-tab" data-tab="tab-settings">⚙️ Settings</button>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="container">
+
+    <!-- Empty State when no children exist -->
+    <div id="noChildrenState" class="empty-state card" style="display: none;">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="7" r="4"/>
+        <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+      </svg>
+      <h3>Welcome to Growth Tracker!</h3>
+      <p style="margin-bottom: 1.25rem;">Start by adding a profile for your child.</p>
+      <button class="btn btn-primary" onclick="window.app.openChildModal()">+ Add Your First Child</button>
+    </div>
+
+    <!-- TAB 1: DASHBOARD -->
+    <section id="tab-dashboard" class="tab-pane active">
+      <!-- Quick Key Stats -->
+      <div class="stat-grid" id="dashboardKeyStats">
+        <!-- Rendered by JS: Height, Weight, Head, Wingspan, etc. -->
+      </div>
+
+      <!-- Category Summary Cards -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>📏 Current Body & Tailor Tape Snapshot</span>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="window.app.switchTab('tab-record')">
+            + New Measurement Session
+          </button>
+        </div>
+        <div id="snapshotCategoriesGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: LOG MEASUREMENTS ("TAPE DAY") -->
+    <section id="tab-record" class="tab-pane" style="display: none;">
+      <form id="recordSessionForm">
+        <div class="card">
+          <div class="card-header" style="flex-wrap: wrap; gap: 0.5rem;">
+            <div class="card-title">
+              <span>📐 Record Measurements for <span id="recordChildName">Child</span></span>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="window.app.openGuideModal('height')">
+                💡 Measurement Guide & Tips
+              </button>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="sessionDate">Measurement Date *</label>
+              <input type="date" id="sessionDate" class="form-input" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="sessionNotes">Notes / Milestone (Optional)</label>
+              <input type="text" id="sessionNotes" class="form-input" placeholder="e.g. 7th Birthday checkup, growth spurt">
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric Categories Accordions -->
+        <div id="measurementsInputSections">
+          <!-- Rendered by JS with inputs and previous value hints -->
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="window.app.resetRecordForm()">Clear Form</button>
+          <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.75rem; font-size: 1.05rem;">
+            💾 Save Measurement Session
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- TAB 3: CHARTS & TRENDS -->
+    <section id="tab-charts" class="tab-pane" style="display: none;">
+      <div class="card">
+        <div class="card-header" style="flex-wrap: wrap; gap: 0.75rem;">
+          <div class="card-title">
+            <span>📈 Growth Trajectory & Comparisons</span>
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <select id="chartViewMode" class="form-select" style="width: auto;">
+              <option value="single">Single Child Progression</option>
+              <option value="sibling">Sibling Comparison (By Age)</option>
+            </select>
+            <select id="chartMetricSelect" class="form-select" style="width: auto;">
+              <!-- Populated by JS -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Chart Container -->
+        <div class="chart-wrapper">
+          <canvas id="growthChartCanvas"></canvas>
+        </div>
+
+        <div id="chartStatsInsight" style="margin-top: 1.25rem; padding: 0.85rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem; color: var(--text-muted);">
+          <!-- Dynamic insights: total growth velocity, etc. -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: HISTORY LOG -->
+    <section id="tab-history" class="tab-pane" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>📜 Historical Sessions for <span id="historyChildName">Child</span></span>
+          </div>
+        </div>
+        <div id="historySessionsList">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: SETTINGS -->
+    <section id="tab-settings" class="tab-pane" style="display: none;">
+      <!-- Appearance & Theme -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🌓 Appearance & Theme</div>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+          Select your visual theme. Dark mode provides low-glare viewing for nighttime measurements.
+        </p>
+        <div style="display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 600;">
+            <input type="radio" name="globalTheme" value="light" id="themeLight" checked>
+            <span>☀️ Light Mode</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 600;">
+            <input type="radio" name="globalTheme" value="dark" id="themeDark">
+            <span>🌙 Dark Mode</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Measurement Unit System -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⚙️ Measurement Units</div>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+          Select your preferred measurement system. This applies globally to all measurement inputs and charts.
+        </p>
+        <div style="display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 600;">
+            <input type="radio" name="globalUnitSystem" value="imperial" id="unitSysImperial" checked>
+            <span>Imperial (Inches / Pounds)</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 600;">
+            <input type="radio" name="globalUnitSystem" value="metric" id="unitSysMetric">
+            <span>Metric (Centimeters / Kilograms)</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Children Management -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">👦 Children Profiles</div>
+          <button class="btn btn-primary btn-sm" onclick="window.app.openChildModal()">+ Add Child</button>
+        </div>
+        <div id="settingsChildrenList">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Custom Measurement Types -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📐 Measurement Categories & Tailor Tape Metrics</div>
+          <button class="btn btn-secondary btn-sm" onclick="window.app.openMetricModal()">+ Add Custom Metric</button>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Standard metrics come pre-configured. You can add any custom tailor tape measurement you wish to track.
+        </p>
+        <div class="table-responsive">
+          <table class="data-table" id="metricsTable">
+            <thead>
+              <tr>
+                <th>Measurement</th>
+                <th>Category</th>
+                <th>Default Unit</th>
+                <th>Type</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="metricsTableBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Backup & Restore -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">💾 Backup & Export</div>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+          <a href="/api/export" class="btn btn-secondary" download>
+            📥 Download JSON Backup
+          </a>
+          <label class="btn btn-secondary" style="cursor: pointer;">
+            📤 Restore from Backup
+            <input type="file" id="importFileInput" accept=".json" style="display: none;">
+          </label>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: Add / Edit Child -->
+  <div class="modal-overlay" id="childModal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="childModalTitle">Add Child Profile</h3>
+        <button class="btn btn-secondary btn-sm" onclick="window.app.closeModal('childModal')">✕</button>
+      </div>
+      <form id="childModalForm">
+        <div class="modal-body">
+          <input type="hidden" id="childModalId">
+          <div class="form-group">
+            <label class="form-label" for="childModalName">Full Name or Nickname *</label>
+            <input type="text" id="childModalName" class="form-input" required placeholder="e.g. Leo">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="childModalBirthdate">Date of Birth *</label>
+            <input type="date" id="childModalBirthdate" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="childModalGender">Gender</label>
+            <select id="childModalGender" class="form-select">
+              <option value="boy">Boy</option>
+              <option value="girl">Girl</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Theme Color</label>
+            <div class="color-picker-row" id="childColorRow">
+              <div class="color-swatch selected" data-color="#4f46e5" style="background: #4f46e5;"></div>
+              <div class="color-swatch" data-color="#0284c7" style="background: #0284c7;"></div>
+              <div class="color-swatch" data-color="#059669" style="background: #059669;"></div>
+              <div class="color-swatch" data-color="#d97706" style="background: #d97706;"></div>
+              <div class="color-swatch" data-color="#e11d48" style="background: #e11d48;"></div>
+              <div class="color-swatch" data-color="#9333ea" style="background: #9333ea;"></div>
+              <div class="color-swatch" data-color="#ec4899" style="background: #ec4899;"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="childModalNotes">Notes</label>
+            <textarea id="childModalNotes" class="form-textarea" rows="2" placeholder="Optional notes..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="window.app.closeModal('childModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveChild">Save Child</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Add Custom Metric -->
+  <div class="modal-overlay" id="metricModal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Add Custom Measurement Metric</h3>
+        <button class="btn btn-secondary btn-sm" onclick="window.app.closeModal('metricModal')">✕</button>
+      </div>
+      <form id="metricModalForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="metricLabel">Measurement Label *</label>
+            <input type="text" id="metricLabel" class="form-input" required placeholder="e.g. Wrist Circumference, Torso Length">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="metricCategory">Body Category</label>
+            <select id="metricCategory" class="form-select">
+              <option value="upper_body">Upper Body & Arms</option>
+              <option value="core">Core & Torso</option>
+              <option value="lower_body">Lower Body & Legs</option>
+              <option value="general">General</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="metricUnit">Default Unit</label>
+            <select id="metricUnit" class="form-select">
+              <option value="in">Inches (in)</option>
+              <option value="cm">Centimeters (cm)</option>
+              <option value="lbs">Pounds (lbs)</option>
+              <option value="kg">Kilograms (kg)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="window.app.closeModal('metricModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Metric</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Measurement Tips Guide -->
+  <div class="modal-overlay" id="guideModal" style="display: none;">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.3rem;">📏</span>
+          <h3 id="guideModalTitle">How to Measure</h3>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="window.app.closeModal('guideModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom: 1.25rem;">
+          <label class="form-label" for="guideMetricSelect" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+            Choose Measurement
+          </label>
+          <select id="guideMetricSelect" class="form-select">
+            <!-- Populated by JS -->
+          </select>
+        </div>
+
+        <div id="guideContent">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="button" class="btn btn-secondary btn-sm" id="btnGuidePrev">← Previous</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="btnGuideNext">Next →</button>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" onclick="window.app.closeModal('guideModal')">Got It</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Script -->
+  <script src="app.js"></script>
+</body>
+</html>

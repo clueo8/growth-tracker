@@ -1,0 +1,13 @@
+{
+  "name": "growth-tracker",
+  "version": "1.0.0",
+  "description": "Modern web application to track children's body and tailor-tape measurements over time",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

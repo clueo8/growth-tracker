@@ -1,0 +1,15 @@
+services:
+  growth-tracker:
+    build: .
+    container_name: growth-tracker
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-3085}:3000"
+    volumes:
+      - ./data:/app/data
+      - ./public:/app/public
+    environment:
+      - PORT=3000
+      - DATA_DIR=/app/data
+      - NODE_ENV=production
+      - TZ=${TZ:-America/New_York}
