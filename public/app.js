@@ -671,7 +671,7 @@
           <div class="meas-input-tile">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
               <label class="meas-input-label" for="metric_input_${m.key}" style="margin-bottom: 0;">${escapeHtml(m.label)}</label>
-              <button type="button" class="btn-help-tip" onclick="window.app.openGuideModal('${m.key}')" title="How to measure ${escapeHtml(m.label)}">
+              <button type="button" class="btn-help-tip" tabindex="-1" onclick="window.app.openGuideModal('${m.key}')" title="How to measure ${escapeHtml(m.label)}">
                 💡 Tips
               </button>
             </div>
