@@ -100,6 +100,19 @@
   border-color: var(--border);
 }
 
+[data-theme="dark"] .custom-dialog-card {
+  background: #111827;
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .custom-dialog-title {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .custom-dialog-message {
+  color: #94a3b8;
+}
+
 [data-theme="dark"] .session-card {
   background: #111827;
 }
@@ -1003,4 +1016,56 @@ body {
   border-radius: 0 8px 8px 0;
   font-size: 0.825rem;
   color: #92400e;
+}
+
+/* Custom Styled Dialog (Alerts & Confirmations) */
+.custom-dialog-card {
+  max-width: 440px;
+  width: 90%;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.custom-dialog-body {
+  padding: 1.5rem 1.25rem 1.15rem;
+}
+
+.custom-dialog-header-layout {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.custom-dialog-icon {
+  font-size: 2.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.custom-dialog-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.custom-dialog-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  color: var(--text-main);
+}
+
+.custom-dialog-message {
+  font-size: 0.925rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.custom-dialog-footer {
+  padding: 0.85rem 1.25rem;
+  gap: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
 }

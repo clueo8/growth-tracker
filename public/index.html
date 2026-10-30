@@ -438,6 +438,25 @@
     </div>
   </div>
 
+  <!-- MODAL: Custom Styled Dialog (Alerts & Confirmations) -->
+  <div class="modal-overlay" id="dialogModal" style="display: none; z-index: 999;">
+    <div class="modal-content custom-dialog-card">
+      <div class="modal-body custom-dialog-body">
+        <div class="custom-dialog-header-layout">
+          <div id="dialogIcon" class="custom-dialog-icon">ℹ️</div>
+          <div class="custom-dialog-text">
+            <h3 id="dialogTitle" class="custom-dialog-title">Notice</h3>
+            <p id="dialogMessage" class="custom-dialog-message"></p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer custom-dialog-footer">
+        <button type="button" class="btn btn-secondary btn-sm" id="btnDialogCancel" style="display: none;">Cancel</button>
+        <button type="button" class="btn btn-primary btn-sm" id="btnDialogConfirm">OK</button>
+      </div>
+    </div>
+  </div>
+
   <!-- App Script -->
   <script src="app.js"></script>
 </body>

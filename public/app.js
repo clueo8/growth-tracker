@@ -81,7 +81,14 @@
     editSessionId: document.getElementById('editSessionId'),
     editSessionDate: document.getElementById('editSessionDate'),
     editSessionNotes: document.getElementById('editSessionNotes'),
-    editSessionInputsGrid: document.getElementById('editSessionInputsGrid')
+    editSessionInputsGrid: document.getElementById('editSessionInputsGrid'),
+    // Custom Styled Dialog Modal
+    dialogModal: document.getElementById('dialogModal'),
+    dialogIcon: document.getElementById('dialogIcon'),
+    dialogTitle: document.getElementById('dialogTitle'),
+    dialogMessage: document.getElementById('dialogMessage'),
+    btnDialogCancel: document.getElementById('btnDialogCancel'),
+    btnDialogConfirm: document.getElementById('btnDialogConfirm')
   };
 
   // Comprehensive Measurement Guide & Tips
@@ -349,6 +356,97 @@
     }
   }
 
+  // Custom Styled Modal Dialogs (Alert & Confirm)
+  function showAlert(message, title = 'Notice', type = 'info') {
+    return new Promise(resolve => {
+      if (!el.dialogModal) {
+        window.alert(message);
+        return resolve();
+      }
+
+      const iconMap = {
+        success: '✅',
+        error: '❌',
+        warning: '⚠️',
+        info: 'ℹ️'
+      };
+      el.dialogIcon.textContent = iconMap[type] || 'ℹ️';
+      el.dialogTitle.textContent = title;
+      el.dialogMessage.textContent = message;
+
+      el.btnDialogCancel.style.display = 'none';
+      el.btnDialogConfirm.textContent = 'OK';
+      el.btnDialogConfirm.className = 'btn btn-primary btn-sm';
+
+      const cleanup = () => {
+        el.dialogModal.style.display = 'none';
+        el.btnDialogConfirm.onclick = null;
+        document.removeEventListener('keydown', keyHandler);
+        resolve();
+      };
+
+      const keyHandler = (e) => {
+        if (e.key === 'Escape' || e.key === 'Enter') {
+          e.preventDefault();
+          cleanup();
+        }
+      };
+
+      el.btnDialogConfirm.onclick = cleanup;
+      document.addEventListener('keydown', keyHandler);
+      el.dialogModal.style.display = 'flex';
+      setTimeout(() => el.btnDialogConfirm.focus(), 50);
+    });
+  }
+
+  function showConfirm(message, title = 'Confirm Action', options = {}) {
+    return new Promise(resolve => {
+      if (!el.dialogModal) {
+        return resolve(window.confirm(message));
+      }
+
+      const {
+        confirmText = 'Confirm',
+        cancelText = 'Cancel',
+        isDanger = false,
+        icon = isDanger ? '🗑️' : '❓'
+      } = options;
+
+      el.dialogIcon.textContent = icon;
+      el.dialogTitle.textContent = title;
+      el.dialogMessage.textContent = message;
+
+      el.btnDialogCancel.style.display = 'inline-flex';
+      el.btnDialogCancel.textContent = cancelText;
+      el.btnDialogConfirm.textContent = confirmText;
+      el.btnDialogConfirm.className = `btn btn-sm ${isDanger ? 'btn-danger' : 'btn-primary'}`;
+
+      const cleanup = (result) => {
+        el.dialogModal.style.display = 'none';
+        el.btnDialogConfirm.onclick = null;
+        el.btnDialogCancel.onclick = null;
+        document.removeEventListener('keydown', keyHandler);
+        resolve(result);
+      };
+
+      const keyHandler = (e) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          cleanup(false);
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          cleanup(true);
+        }
+      };
+
+      el.btnDialogConfirm.onclick = () => cleanup(true);
+      el.btnDialogCancel.onclick = () => cleanup(false);
+      document.addEventListener('keydown', keyHandler);
+      el.dialogModal.style.display = 'flex';
+      setTimeout(() => el.btnDialogConfirm.focus(), 50);
+    });
+  }
+
   // API Client
   async function api(path, options = {}) {
     try {
@@ -363,7 +461,7 @@
       return await res.json();
     } catch (err) {
       console.error(`API Error on ${path}:`, err);
-      alert(`Error: ${err.message}`);
+      await showAlert(err.message, 'Request Error', 'error');
       throw err;
     }
   }
@@ -715,7 +813,7 @@
   async function handleRecordSubmit(e) {
     e.preventDefault();
     if (!state.activeChildId) {
-      alert('Please select or add a child profile first.');
+      await showAlert('Please select or add a child profile first.', 'Child Profile Needed', 'warning');
       return;
     }
 
@@ -738,7 +836,7 @@
     });
 
     if (measurements.length === 0) {
-      alert('Please enter at least one measurement value.');
+      await showAlert('Please enter at least one measurement value.', 'No Measurements Entered', 'warning');
       return;
     }
 
@@ -750,7 +848,7 @@
     await loadStats();
     await loadSessions();
     switchTab('tab-dashboard');
-    alert('Measurement session recorded successfully!');
+    await showAlert('Measurement session recorded successfully!', 'Measurements Saved', 'success');
   }
 
   function resetRecordForm() {
@@ -980,7 +1078,12 @@
   }
 
   async function deleteSession(id) {
-    if (!confirm('Are you sure you want to delete this measurement session?')) return;
+    const confirmed = await showConfirm(
+      'Are you sure you want to delete this measurement session? All measurements for this date will be permanently deleted.',
+      'Delete Session?',
+      { confirmText: 'Delete Session', isDanger: true }
+    );
+    if (!confirmed) return;
     await api(`/api/sessions/${id}`, { method: 'DELETE' });
     await loadStats();
     await loadSessions();
@@ -1095,7 +1198,12 @@
 
   async function deleteChild(id) {
     const child = state.children.find(c => c.id === id);
-    if (!confirm(`Are you sure you want to delete ${child ? child.name : 'this child'}? All measurement records will be permanently removed.`)) return;
+    const confirmed = await showConfirm(
+      `Are you sure you want to delete ${child ? child.name : 'this child'}? All measurement records will be permanently removed.`,
+      'Delete Child Profile?',
+      { confirmText: 'Delete Child', isDanger: true }
+    );
+    if (!confirmed) return;
     await api(`/api/children/${id}`, { method: 'DELETE' });
     await loadChildren();
   }
@@ -1122,11 +1230,16 @@
     closeModal('metricModal');
     await loadMetrics();
     populateRecordForm();
-    alert('Custom metric added successfully!');
+    await showAlert('Custom metric added successfully!', 'Metric Added', 'success');
   }
 
   async function deleteMetric(key) {
-    if (!confirm(`Are you sure you want to delete this custom metric?`)) return;
+    const confirmed = await showConfirm(
+      'Are you sure you want to delete this custom metric? All historical measurements for this metric will also be removed.',
+      'Delete Custom Metric?',
+      { confirmText: 'Delete Metric', isDanger: true }
+    );
+    if (!confirmed) return;
     await api(`/api/metrics/${key}`, { method: 'DELETE' });
     await loadMetrics();
     populateRecordForm();
@@ -1273,7 +1386,7 @@
     });
 
     if (measurements.length === 0) {
-      alert('A session must have at least one measurement.');
+      await showAlert('A session must have at least one measurement.', 'Empty Session', 'warning');
       return;
     }
 
@@ -1288,7 +1401,7 @@
     if (state.activeTab === 'tab-charts') {
       updateChart();
     }
-    alert('Measurements updated successfully!');
+    await showAlert('Measurements updated successfully!', 'Measurements Updated', 'success');
   }
 
   async function handleImportBackup(e) {
@@ -1298,15 +1411,20 @@
     try {
       const text = await file.text();
       const json = JSON.parse(text);
-      if (!confirm('Importing this file will overwrite existing records. Do you wish to continue?')) return;
+      const confirmed = await showConfirm(
+        'Importing this file will overwrite existing records with the backup file data. Do you wish to continue?',
+        'Restore Backup?',
+        { confirmText: 'Overwrite & Restore', isDanger: true }
+      );
+      if (!confirmed) return;
       await api('/api/import', {
         method: 'POST',
         body: JSON.stringify(json)
       });
-      alert('Backup imported successfully!');
+      await showAlert('Backup imported successfully!', 'Backup Restored', 'success');
       window.location.reload();
     } catch (err) {
-      alert('Failed to import backup: ' + err.message);
+      await showAlert('Failed to import backup: ' + err.message, 'Import Failed', 'error');
     }
   }
 
@@ -1332,8 +1450,13 @@
     deleteChild,
     deleteSession,
     deleteMetric,
-    resetRecordForm
+    resetRecordForm,
+    showAlert,
+    showConfirm
   };
+
+  // Override default browser alert
+  window.alert = (msg) => showAlert(msg);
 
   // Run on page load
   document.addEventListener('DOMContentLoaded', init);
